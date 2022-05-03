@@ -1,4 +1,5 @@
 # tNrInstrument
+![entire setup](https://user-images.githubusercontent.com/80794322/166525419-27ea44cc-c435-49a8-8bdc-d8df3889e2a6.PNG)
 
 The total reactive nitrogen instrument was developed by the VandenBoer research group and funded by the Sloan foundation. 
 The goal of this instrument is to perform modulated measurements and quantify three nitrogenous species to understand our indoor air quality. 
@@ -12,4 +13,4 @@ For full details, please see our published tNr Instrument description paper (in 
 If you use this software, please cite: 
 
 
-![tnr instrument setup](https://user-images.githubusercontent.com/80794322/166524884-962dd418-0501-47e7-8c5c-0e62cb128c17.PNG)
+
