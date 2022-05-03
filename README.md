@@ -10,3 +10,6 @@ A custom R-script is provided to speed up the data processing and finalization f
 For full details, please see our published tNr Instrument description paper (in progress, link to be updated). 
 
 If you use this software, please cite: 
+
+
+![tnr instrument setup](https://user-images.githubusercontent.com/80794322/166524884-962dd418-0501-47e7-8c5c-0e62cb128c17.PNG)
