@@ -1,24 +1,4 @@
-# AUTHORS #################################################################################################
-# Entire script is written by Melodie and Leigh 2021 from VDB Research Group 
-
-# R Script to process collected data from the tNr instrument to measure nitrogenous species indoors 
-# see document outline of how the code is organized
-# Written by Melodie Lao, NOV 2021 
-
-# R Script is written to wrangle collected tNr data from the tNr instrument automatically,
-# Summary of the Script
-# 1. Reorganize the data sets by tNr pathway and cycle
-# 2. Separate each cycle number into multiple data frames, adds them into a list 
-# 3. Apply an average of n=60 (1 minute) to the list of data frames  
-# 4. Removes the first 60 seconds of data
-# 5. Concatenate each tNr pathway (e.g. HONO, NH3...) and fill in the missing datetimes 
-# 6. Linear interpolate for each tNr pathway where we get 5 points (1 min each) per cycle 
-# 7. Calculate the specific Nr by difference
-# 8. Graph 
-
-#######################################################################################################
-# 1. PROCESS ##############################################################################################
-# PACKAGES ################################################################################################
+#packages used 
 library(xts)
 library(zoo)
 library(data.table)
@@ -28,26 +8,19 @@ library("padr")
 
 rm(list=ls(all=TRUE)) #clear all previous variables in environment 
 
-#VARIABLES ###############################################################################################
-# TD = tnr dataframe 
-# CL = combined list of removing 1 min data from beginning of each cycle and averaged 
-# NL = no linear interpolation 
-# O = original measurements and datetimes 
-
-#PRELIM DATA ##################################################################################################
-## Directory ###########################################################################################
+# 1. Data Processing 
+# Import Data ------------------------------------------------------------
 #set directory to save your files
 setwd("C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files")
 
-## Choose File #############################################################################################
 infile<- file.choose() #choose the file you want to analyze 
-tnrdata <- read.csv(infile, sep = "\t")  #the variable is tnrdata, read the the .csv file and separate by tabs
 
-## Modify Dataset ##########################################################################################
+tnrdata <- read.csv(infile, sep = "\t") 
+
+## Modify Dataset ------------------------------------------------------------
 tnrdata <- tnrdata[ -c(5:6)] #removes v4 and MFC2 flow which are column 5 and 6 
 
-tnrdata$date <- dmy_hms(tnrdata$datetime) #rearrange datetime format and add new column
-# class(tnrdata$date) #POSIxct format
+tnrdata$date <- dmy_hms(tnrdata$datetime) 
 
 colnames(tnrdata) <- c("datetime", 
                        "V1", 
@@ -56,10 +29,10 @@ colnames(tnrdata) <- c("datetime",
                        "NO", 
                        "NO2", 
                        "NOx", 
-                       "date") #rename correct column names from original file
-tnrdata$Vt <- rowSums(tnrdata[2:4]) #add up switch valve total in new column to represent each Nr cycle
+                       "date") 
 
-#add cycle column to specify type of tNr mode in name as a check; *rename to w/e appropriate 
+tnrdata$Vt <- rowSums(tnrdata[2:4])
+
 tnrdata <- tnrdata %>%            
   mutate(tnr_cycle = case_when(
     Vt == 0 ~ "tNr",
@@ -81,16 +54,19 @@ TD <- subset(tnrdata, select = c(8,9,5,6,7,10,11)) #re-arrange columns to a new 
 
 TD <- data.table(TD)
 
-# TD %>% #these cycles need to match for data processing
-#   select(tnr_cycle, cycle) %>%
-#   table()
-# options(max.print=999999)
+# double check if cycle numbers are uneven
+TD %>% 
+  select(tnr_cycle, cycle) %>%
+  table()
+options(max.print=999999)
 
-### *Voltage drift correction ########################################################################
-#calibration from 09-17-2021 
-#NOcorr = 1.0018[NO] - 0.8569
-#NO2 corr = 1.0018[NO2] - 0.8459
-#NOx corr = NOcorr + NO2corr 
+## *Voltage drift correction ------------------------------------------------------------
+# slopes of converting voltage analog output from the NOx analyzer to mixing ratio
+# must calibration every 3-6 months to maintain instrument accuracy 
+# calibration performed on 09-17-2021
+# NOcorr = 1.0018[NO] - 0.8569
+# NO2 corr = 1.0018[NO2] - 0.8459
+# NOx corr = NOcorr + NO2corr
 
 TD2 <- TD %>% 
   mutate(TD, NOcorr = (1.0018*TD$NO) - 0.8569) %>%
@@ -103,7 +79,7 @@ TD3 <- subset(TD2, select = c("date", "Vt", "NOcorr", "NO2corr", "NOxcorr", "tnr
 #rearrange where number of cycles become columns 
 pivot_wider(TD3, names_from = cycle, values_from = NOcorr ) -> totcycl_TD
 
-#create new df of each cycle
+#create new df per each cycle
 for(i in unique(TD3$cycle)) {
   nam <- paste("TD", i, sep = "_")
   assign(nam, TD3[TD3$cycle == i, ])
