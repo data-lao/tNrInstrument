@@ -38,7 +38,7 @@ tnrdata <- tnrdata %>%
     Vt == 0 ~ "tNr",
     Vt == 2 ~ "NH3",
     Vt == 1 ~ "HONO",
-    Vt == 3 ~ "NOx")) #can write this as a function if need to recall
+    Vt == 3 ~ "NOx")) 
 
 #add a cycle count up column.
 #cycle defined as a measurement mode, i.e. NOx, HONO, tNr or NH3
@@ -85,14 +85,14 @@ for(i in unique(TD3$cycle)) {
   assign(nam, TD3[TD3$cycle == i, ])
 }
 
-# *CYCLE 1 ###############################################################################################
+# *CYCLE 1 ------------------------------------------------------------
   #the length of cycle 1 is not divisible by 60, ruining the averaged start time
   #Remove the first rows by nth to make it divisible by 60
         #future steps = to make a loop to automatically remove or add in nth row as NA 
 TD_1 <- tail(TD_1, -53)
                 
-# CLEAN/AVG ##############################################################################################
-## Avg 1 min #############################################################################################
+# CLEAN/AVG ------------------------------------------------------------
+## Avg 1 min ------------------------------------------------------------
 
 list_TD <- mget(ls(pattern = 'TD_'))  #makes a list of all df with cycles 
 
@@ -112,7 +112,7 @@ AVG_list <- map(list_TD, ~ .x %>%
                 )
 #NOTE: averaged times are different by seconds in cycle 1 to other cycles due to uneven lengths 
 
-## Remove Rows ###########################################################################################
+## Remove Rows ------------------------------------------------------------
 
 AVG_list2 <- lapply(AVG_list, tail, -1) #removes first 60 rows in this list 
        #maybe better to replace c(5,6,7) with replace_na by tail, -1 
@@ -123,7 +123,7 @@ AVG_list2 <- lapply(AVG_list, tail, -1) #removes first 60 rows in this list
 # list2env(AVG_list2, .GlobalEnv) #unlists list_TD3 to your global environment and replaces previous single DF
 # #see lists of DF if you want previous data
 
-## Combine Data ##########################################################################################
+## Combine Data ------------------------------------------------------------
 
 CL <- bind_rows(AVG_list2, .id = "column_label")  #combines list in one df, sort by date
 CL <- arrange(CL, cycle) #rearrange by date
@@ -141,11 +141,9 @@ for(i in unique(CLtot$tnr_cycle)) {
   assign(nam1, CLtot[CLtot$tnr_cycle == i, ])
 }
 
-# CALCULATIONS ###########################################################################################
-## Linear Interp #########################################################################################
-#pad will add in missing 1 min data as NA, then linear interpolate inbetween known data 
-
-### HONO #################################################################################################
+# CALCULATIONS ------------------------------------------------------------
+## Linear Interp ------------------------------------------------------------
+### HONO ------------------------------------------------------------
 CL_HONO[['date']] <- as.POSIXct(CL_HONO[['date']],
                                 format = "%Y-%m-%d %H:%M:%S")
 
@@ -166,7 +164,7 @@ LI_HONO_2$NO <- na.approx(LI_HONO$NO)
 LI_HONO_2$NO2 <- na.approx(LI_HONO$NO2)
 LI_HONO_2$NOx <- na.approx(LI_HONO$NOx)
 
-### NOx #################################################################################################
+### NOx ------------------------------------------------------------
 CL_NOx[['date']] <- as.POSIXct(CL_NOx[['date']],
                                format = "%Y-%m-%d %H:%M:%S")
 
@@ -185,7 +183,7 @@ LI_NOX_2$NO <- na.approx(LI_NOX$NO)
 LI_NOX_2$NO2 <- na.approx(LI_NOX$NO2)
 LI_NOX_2$NOx <- na.approx(LI_NOX$NOx)
 
-### NH3 #################################################################################################
+### NH3 ------------------------------------------------------------
 CL_NH3[['date']] <- as.POSIXct(CL_NH3[['date']],
                                format = "%Y-%m-%d %H:%M:%S")
 
@@ -204,7 +202,7 @@ LI_NH3_2$NO <- na.approx(LI_NH3$NO)
 LI_NH3_2$NO2 <- na.approx(LI_NH3$NO2)
 LI_NH3_2$NOx <- na.approx(LI_NH3$NOx)
 
-### tNr #################################################################################################
+### tNr ------------------------------------------------------------
 CL_tNr[['date']] <- as.POSIXct(CL_tNr[['date']],
                                format = "%Y-%m-%d %H:%M:%S")
 
@@ -223,7 +221,7 @@ LI_TNR_2$NO <- na.approx(LI_TNR$NO)
 LI_TNR_2$NO2 <- na.approx(LI_TNR$NO2)
 LI_TNR_2$NOx <- na.approx(LI_TNR$NOx)
 
-## No Interpolation ################################################################################
+## No Interpolation ------------------------------------------------------------
 NL_HONO <- merge(LI_HONO, LI_NOX, by = "date_min", all = TRUE)
 NL_NH3 <- merge(LI_TNR, LI_NH3, by = "date_min", all = TRUE)
 NL_Nr <- merge(NL_HONO, NL_NH3, by = "date_min", all = TRUE)
@@ -294,7 +292,7 @@ colnames(O_Nr2) <- c("date_min",
 
 
 
-## HONO-NO2 ##############################################################################################
+## HONO-NO2 ------------------------------------------------------------
 #here we take the avg data and calc HONO and NH3 by differnce using the nearest points
 
 #1st HONO calculation from NOx
@@ -317,7 +315,7 @@ colnames(nox) <- c("date_min", "NOx.true", "NO2.true", "NO")
 
 tp1 <- full_join(nox, hono, by = "date_min")
 
-## tNr-NH3 ###############################################################################################
+## tNr-NH3 ------------------------------------------------------------
 
 F_NH3 <- merge(LI_TNR_2, LI_NH3_2, by = "date_min", all = TRUE)
 # .x columns are TNr pathway, .y columns are NH3 pathway 
@@ -361,12 +359,10 @@ all2 <- all %>%
             NH3 = mean(NH3, na.rm = TRUE),
             tnr = mean(tnr, na.rm = TRUE))
 
-# GRAPHS ##################################################################################################
-
-#summary stats to check data
+# GRAPHS ------------------------------------------------------------
 summary(all)
 
-#ggplot scatter graph
+# quick chekc with a scatter plot 
 all %>%
   gather("key", "value", -date_min) %>%
   ggplot(aes (x = date_min,
@@ -398,10 +394,9 @@ NL_Nr2 %>%
   geom_point()
 
 #offload selective files 
-
 # write.csv(NL_NH3, file = file.choose(new = T))
 
-# FINAL DATA ##############################################################################################
+# FINAL DATA ------------------------------------------------------------
 #saves the final processed data csv file in your directory 
 
 #measured and interpolated data averaged to 1 min
@@ -424,16 +419,9 @@ outfile_final4=(paste(sub('.csv', '', infile),"_1min_ORIGINAL_datetime_measureme
 print(outfile_final4)
 write.csv(O_Nr2, outfile_final4, row.names=F)
 
-# .##################################################################################################################
-# 2. COMBINE ########################################################################################################
-# BIND WEEKLY DF################################################################################################
-#KOCENA tNR processing
-# aim bind all processed tNr files (ML scriot) to one file.
-# note I processed Sept 5 to sept 10, Melodie did 11-17 Sept
-# script in two halfs, 1 min and 5 min avg data
-# Written by Leigh Crilley Dec 2021
-# modified by Melodie Dec 2021 
 
+# Compile All ------------------------------------------------------------
+# use this code if you want to compile all daily datasets into weekly 
 library(readr)
 library(gridExtra)
 library(ggpubr)
@@ -441,10 +429,9 @@ library(lmodel2)
 
 rm(list=ls(all=TRUE)) #clear all previous variables
 
-# SET DIRECTORY ###################################################################################################
 setwd("C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files")
 
-# 1 MIN BIND ######################################################################################################
+# 1 MIN BIND ------------------------------------------------------------
 #first 1 min interpolated and measured data 
 data.path.1min="C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files/12-17-2021 processed 1min and 5 min R tnr/1 min"
 
@@ -454,10 +441,10 @@ d.1min <- rbindlist(lapply(filenames.1min, fread, header=T,blank.lines.skip=TRUE
 
 d.1min$date.m <- ymd_hms(d.1min$date_min)
 
-## Measured only 1 min data ########################################################################################
+## Measured only 1 min data ------------------------------------------------------------
 data.path.1min.m="C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files/12-17-2021 processed 1min and 5 min R tnr/1 min/measured 1 min"
 
-## Combine All ###################################################################################################### 
+## Combine All ------------------------------------------------------------
 filenames.1min.m=list.files(path=data.path.1min.m, pattern = "Total*",full.names=TRUE)
 d.1min.m <- rbindlist(lapply(filenames.1min.m, fread, header=T,blank.lines.skip=TRUE))
 
@@ -474,7 +461,7 @@ tp1 <- cbind(d.1min.meas, d.1min)
 
 all.1min <- select(tp1, -c("cycle"))
 
-## Time Plot Check #############################################################################################
+## quick graph check 
 all.1min %>%
   gather("key", "value", -date) %>%
   ggplot(aes (x = date,
@@ -494,12 +481,12 @@ ggplot() +
 
 write.csv(all.1min, "tNr processed week2 11-17 Sept 1 min.csv", row.names = F)
 
-#5 MIN WEEKLY #########################################################################################################
+#5 MIN WEEKLY ------------------------------------------------------------
 #5 min data interpolated and measured data 
 #note no measure only file for 5 min data
 data.path.5min="C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files/12-17-2021 processed 1min and 5 min R tnr/5 min"
 
-# FINAL CSV ########################################################################################################
+# FINAL CSV ------------------------------------------------------------
 
 filenames.5min=list.files(path=data.path.5min, pattern = "Total*",full.names=TRUE)
 d.5min <- rbindlist(lapply(filenames.5min, fread, header=T,blank.lines.skip=TRUE))
