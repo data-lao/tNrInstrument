@@ -4,18 +4,15 @@ library(zoo)
 library(data.table)
 library(lubridate)
 library(tidyverse)
-library("padr")
+library(padr)
 
 rm(list=ls(all=TRUE)) #clear all previous variables in environment 
 
 # 1. Data Processing 
 # Import Data ------------------------------------------------------------
-#set directory to save your files
 setwd("C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files")
 
-infile<- file.choose() #choose the file you want to analyze 
-
-tnrdata <- read.csv(infile, sep = "\t") 
+tnrdata <- read.csv(file.choose(), sep = "\t") #load csv file 
 
 ## Modify Dataset ------------------------------------------------------------
 tnrdata <- tnrdata[ -c(5:6)] #removes v4 and MFC2 flow which are column 5 and 6 
@@ -96,11 +93,6 @@ TD_1 <- tail(TD_1, -53)
 
 list_TD <- mget(ls(pattern = 'TD_'))  #makes a list of all df with cycles 
 
-# this works on 1 df 
-# TD1_AVG <- TD_1 %>%
-#   group_by(date = cut(date, breaks="60 sec")) %>%
-#   summarize(NO = mean(NO), NO2 = mean(NO2), NOx = mean(NOx), Vt = mean(Vt), cycle = mean(cycle))
-
 #apply averaging of every 60 rows to list 
 AVG_list <- map(list_TD, ~ .x %>%
                 group_by(date = cut(date, breaks = "60 sec")) %>% 
@@ -116,12 +108,6 @@ AVG_list <- map(list_TD, ~ .x %>%
 
 AVG_list2 <- lapply(AVG_list, tail, -1) #removes first 60 rows in this list 
        #maybe better to replace c(5,6,7) with replace_na by tail, -1 
-
-# #removes column of strings (tnr_cycle) to average logical var 
-# list_TD3 <- map_if(list_TD2, ~ "tnr_cycle" %in% names(.x), ~ .x %>% select(-tnr_cycle), .depth = 2)
-# 
-# list2env(AVG_list2, .GlobalEnv) #unlists list_TD3 to your global environment and replaces previous single DF
-# #see lists of DF if you want previous data
 
 ## Combine Data ------------------------------------------------------------
 
