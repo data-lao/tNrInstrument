@@ -82,11 +82,13 @@ for(i in unique(TD3$cycle)) {
   assign(nam, TD3[TD3$cycle == i, ])
 }
 
-# *CYCLE 1 ------------------------------------------------------------
+# CYCLE 1 ------------------------------------------------------------
   #the length of cycle 1 is not divisible by 60, ruining the averaged start time
-  #Remove the first rows by nth to make it divisible by 60
-        #future steps = to make a loop to automatically remove or add in nth row as NA 
-TD_1 <- tail(TD_1, -53)
+  #Remove the first rows by nth to make it divisible by 60 for time averaging to a min 
+
+rn <- nrow(TD_1) #rn = row number
+rm <- rn %% 60  #rm = remainder of row number when divided by 60 
+TD_1 <- tail(TD_1, -rm)
                 
 # CLEAN/AVG ------------------------------------------------------------
 ## Avg 1 min ------------------------------------------------------------
@@ -348,7 +350,7 @@ all2 <- all %>%
 # GRAPHS ------------------------------------------------------------
 summary(all)
 
-# quick chekc with a scatter plot 
+# quick check with a scatter plot 
 all %>%
   gather("key", "value", -date_min) %>%
   ggplot(aes (x = date_min,
