@@ -1,3 +1,4 @@
+#feel free to email data-lao/VandenBoer group if you come across any errors or require help in troubleshooting your tNr instrument 
 #packages used 
 library(xts)
 library(zoo)
