@@ -1,3 +1,4 @@
+#Written by Melodie Lao (github.com/data-lao) & Leigh Creilley 
 #feel free to email data-lao/VandenBoer group if you come across any errors or require help in troubleshooting your tNr instrument 
 #packages used 
 library(xts)
@@ -11,7 +12,7 @@ rm(list=ls(all=TRUE)) #clear all previous variables in environment
 
 # 1. Data Processing 
 # Import Data ------------------------------------------------------------
-setwd("C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files")
+setwd("C:/Users/your_drivename_here")
 
 tnrdata <- read.csv(file.choose(), sep = "\t") #load csv file 
 
@@ -58,14 +59,7 @@ TD %>%
   table()
 options(max.print=999999)
 
-## *Voltage drift correction ------------------------------------------------------------
-# slopes of converting voltage analog output from the NOx analyzer to mixing ratio
-# must calibration every 3-6 months to maintain instrument accuracy 
-# calibration performed on 09-17-2021
-# NOcorr = 1.0018[NO] - 0.8569
-# NO2 corr = 1.0018[NO2] - 0.8459
-# NOx corr = NOcorr + NO2corr
-
+#applied voltage corrections to instrument
 TD2 <- TD %>% 
   mutate(TD, NOcorr = (1.0018*TD$NO) - 0.8569) %>%
   mutate(TD, NO2corr = (1.0018*TD$NO2) - 0.8469)
@@ -418,11 +412,11 @@ library(lmodel2)
 
 rm(list=ls(all=TRUE)) #clear all previous variables
 
-setwd("C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files")
+setwd("C:/Users/folder_name_here")
 
 # 1 MIN BIND ------------------------------------------------------------
 #first 1 min interpolated and measured data 
-data.path.1min="C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files/12-17-2021 processed 1min and 5 min R tnr/1 min"
+data.path.1min="C:/Users/your_drive_name_here"
 
 # load files into a list  
 filenames.1min=list.files(path=data.path.1min, pattern = "Total*",full.names=TRUE)
@@ -431,7 +425,7 @@ d.1min <- rbindlist(lapply(filenames.1min, fread, header=T,blank.lines.skip=TRUE
 d.1min$date.m <- ymd_hms(d.1min$date_min)
 
 ## Measured only 1 min data ------------------------------------------------------------
-data.path.1min.m="C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files/12-17-2021 processed 1min and 5 min R tnr/1 min/measured 1 min"
+data.path.1min.m="C:/Users/drive_name_here"
 
 ## Combine All ------------------------------------------------------------
 filenames.1min.m=list.files(path=data.path.1min.m, pattern = "Total*",full.names=TRUE)
@@ -468,12 +462,12 @@ ggplot() +
 
 #write csv file
 
-write.csv(all.1min, "tNr processed week2 11-17 Sept 1 min.csv", row.names = F)
+write.csv(all.1min, "tNr_processed_1_min_data.csv", row.names = F)
 
 #5 MIN WEEKLY ------------------------------------------------------------
 #5 min data interpolated and measured data 
-#note no measure only file for 5 min data
-data.path.5min="C:/Users/laome/OneDrive - York University/backup/research/HONO_tNr/R/R data files/12-17-2021 processed 1min and 5 min R tnr/5 min"
+#note no measurements only file for 5 min data
+data.path.5min="drive_name_here"
 
 # FINAL CSV ------------------------------------------------------------
 
@@ -489,4 +483,4 @@ d.5min %>%
               color = key)) + 
   geom_point()
 
-write.csv(d.5min, "tNr processed week3 11-17 Sept 5 min.csv", row.names = F)
+write.csv(d.5min, "5_min_averaged_data", row.names = F)
