@@ -10,7 +10,6 @@ A custom R-script is provided to speed up the data processing and finalization f
 
 For full details, please see our published tNr Instrument description paper (in progress, link to be updated). 
 
-If you use this software, please cite: (in progress) 
-
+If you use this software, please review the citation file: https://github.com/data-lao/tNrInstrument/blob/main/citation
 
 
