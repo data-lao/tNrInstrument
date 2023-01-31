@@ -8,7 +8,7 @@ A custom SCADA system written in LabVIEW (National Instruments) was used to cont
 
 A custom R-script is provided to speed up the data processing and finalization for visualizations and interpretation (sample data provided in tNr sample data.zip file).
 
-For full details and optimal operating conditions, please see our published instrument description paper (in progress, link to be updated). 
+For full details and optimal operating conditions, please see our published instrument description paper (https://doi.org/10.1039/D2EM00446A). 
 
 If you use this software, please review the citation file: https://github.com/data-lao/tNrInstrument/blob/main/citation
 
