@@ -6,7 +6,7 @@ This instrument is designed to measure the total gas-phase reactive nitrogen (tN
 
 A custom SCADA system written in LabVIEW (National Instruments) was used to control the instrument via this [LabJack VI](https://github.com/data-lao/tNrInstrument/tree/main/labview).
 
-A custom R-script is provided to speed up the data processing and finalization for visualizations and interpretation (sample data provided in tNr sample data.zip file).
+A [custom R-script](https://github.com/data-lao/tNrInstrument/blob/main/tNrInstrument_data_processing_code.R) is provided to speed up the data processing and finalization for visualizations and interpretation (sample data provided in tNr sample data.zip file).
 
 For full details and optimal operating conditions, please see our published instrument description paper (https://doi.org/10.1039/D2EM00446A). 
 
